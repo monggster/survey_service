@@ -1,2 +1,5 @@
 # ingoring venv directory
 venv/
+
+# ignoring notes
+notes.txt
