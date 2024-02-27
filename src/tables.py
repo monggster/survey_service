@@ -13,6 +13,8 @@ class User(Base):
     password = Column(String)
     created_at = Column(DateTime)
 
+    responses = relationship('SurveyResponse')
+
 class Survey(Base):
     __tablename__ = 'surveys'
 
@@ -21,7 +23,9 @@ class Survey(Base):
     survey_name = Column(String)
     created_at = Column(DateTime)
 
-    questions = relationship('Question', back_populates='survey')
+    # При удалении опроса, каскадно удаляются все связанные с ним вопросы
+    questions = relationship('Question', cascade='all, delete', back_populates='survey')
+    responses = relationship('SurveyResponse', cascade='all, delete', back_populates='survey')
 
 class Question(Base):
     __tablename__ = 'questions'
@@ -36,7 +40,7 @@ class Question(Base):
     question_type = Column(Integer) 
 
     survey = relationship('Survey', back_populates='questions')
-    choices = relationship('Choice', back_populates='question')
+    choices = relationship('Choice', cascade='all, delete', back_populates='question')
 
 class Choice(Base):
     __tablename__ = 'choices'
@@ -57,6 +61,6 @@ class SurveyResponse(Base):
     response_text = Column(String)
     responded_at = Column(DateTime)
 
-    survey = relationship('Survey')
+    survey = relationship('Survey', back_populates='responses')
     question = relationship('Question')
     respondent = relationship('User')
