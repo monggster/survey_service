@@ -7,7 +7,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = 'users'
 
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String)
     email = Column(String)
     password = Column(String)
@@ -18,7 +18,7 @@ class User(Base):
 class Survey(Base):
     __tablename__ = 'surveys'
 
-    survey_id = Column(Integer, primary_key=True)
+    survey_id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey('users.user_id'))
     survey_name = Column(String)
     created_at = Column(DateTime)
@@ -30,7 +30,7 @@ class Survey(Base):
 class Question(Base):
     __tablename__ = 'questions'
 
-    question_id = Column(Integer, primary_key=True)
+    question_id = Column(Integer, primary_key=True, autoincrement=True)
     survey_id = Column(Integer, ForeignKey('surveys.survey_id'))
     question_text = Column(String)
 
@@ -45,7 +45,7 @@ class Question(Base):
 class Choice(Base):
     __tablename__ = 'choices'
 
-    choice_id = Column(Integer, primary_key=True)
+    choice_id = Column(Integer, primary_key=True, autoincrement=True)
     question_id = Column(Integer, ForeignKey('questions.question_id'))
     choice_text = Column(String)
 
@@ -54,7 +54,7 @@ class Choice(Base):
 class SurveyResponse(Base):
     __tablename__ = 'survey_responses'
 
-    survey_response_id = Column(Integer, primary_key=True)
+    survey_response_id = Column(Integer, primary_key=True, autoincrement=True)
     survey_id = Column(Integer, ForeignKey('surveys.survey_id'))
     question_id = Column(Integer, ForeignKey('questions.question_id'))
     user_id = Column(Integer, ForeignKey('users.user_id')) 
