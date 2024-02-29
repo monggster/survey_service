@@ -13,7 +13,8 @@ class User(Base):
     password = Column(String)
     created_at = Column(DateTime)
 
-    responses = relationship('SurveyResponse')
+    responses = relationship('SurveyResponse',
+                             back_populates='respondent', overlaps="responses")
 
 class Survey(Base):
     __tablename__ = 'surveys'
@@ -63,4 +64,4 @@ class SurveyResponse(Base):
 
     survey = relationship('Survey', back_populates='responses')
     question = relationship('Question')
-    respondent = relationship('User')
+    respondent = relationship('User', overlaps='responses')

@@ -14,6 +14,17 @@
 На главной странице будет предложена регистрация/вход + список существующих опросов.
 Если пользователь авторизирован, он может создать или удалить свой опрос, а так же к любому опросу можно посмотреть статистику.
 
+
+Создание базы данных:
+`CREATE DATABASE survey_service;`
+
+Даем права на управление базой данных:
+`ALTER DATABASE "survey_service" OWNER TO user;`
+
+
+
+
+
 Подробное описание методов класса SurveyService:
 
 -----------------
@@ -145,7 +156,22 @@ user_data = {
 - `validate_user`
 
 -----------------
-- `upload_survey_response`
+- `upload_responses`
+Принимает: 
+```
+responses_data = {
+    'survey_id': survey_id,
+    'user_id': user_id,
+    'responses': [
+        {
+            'question_id': question_id,
+            'response_text': response_text,
+        }
+        ...
+    ]
+}
+```
+Возвращает: `None` 
 
 -----------------
 - `get_surveys_by_creator`

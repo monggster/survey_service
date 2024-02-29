@@ -3,12 +3,26 @@ from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from tables import Base, User, Survey, Question, Choice, SurveyResponse
 from collections import defaultdict
+from contextlib import contextmanager
 
 class SurveyService:
     def __init__(self, db_uri):
         engine = create_engine(db_uri)
         Base.metadata.create_all(engine)
         self.Session = sessionmaker(bind=engine)
+    
+    @contextmanager
+    def session_scope(self):
+        session = self.Session()
+        try:
+            yield session
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
 
     def create_survey(self, survey_data):
         session = self.Session()
@@ -61,9 +75,9 @@ class SurveyService:
     def get_survey(self, survey_id):
         session = self.Session()
         survey = session.query(Survey).get(survey_id)
-        session.close()
 
         if not survey:
+            session.close()
             return None
 
         # Создаем словарь для хранения данных опроса
@@ -90,14 +104,15 @@ class SurveyService:
 
             survey_data['questions'].append(question_data)
 
+        session.close()
         return survey_data
 
     def get_survey_statistics(self, survey_id):
         session = self.Session()
         survey = session.query(Survey).get(survey_id)
-        session.close()
 
         if not survey:
+            session.close()
             return None
 
         # Создаем словарь для хранения статистики опроса
@@ -105,7 +120,7 @@ class SurveyService:
             'survey_id': survey.survey_id,
             'creator_id': survey.user_id,
             'survey_name': survey.survey_name,
-            'created_at': survey.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'created_at': survey.created_at.strftime('%H:%M %d/%m/%Y'),
             'questions': []
         }
 
@@ -131,13 +146,13 @@ class SurveyService:
 
             survey_statistics['questions'].append(question_statistics)
 
+        session.close()
         return survey_statistics
 
 
     def get_surveys_list(self):
         session = self.Session()
         surveys = session.query(Survey).all()
-        session.close()
 
         surveys_list = []
 
@@ -146,12 +161,13 @@ class SurveyService:
                 'survey_id': survey.survey_id,
                 'creator_id': survey.user_id,
                 'survey_name': survey.survey_name,
-                'created_at': survey.created_at.strftime('%Y-%m-%d %H:%M:%S')
+                'created_at': survey.created_at.strftime('%H:%M %d/%m/%Y')
             }
             # Получаем количество вопросов в опросе
             survey_data['question_count'] = len(survey.questions)
             surveys_list.append(survey_data)
 
+        session.close()
         return surveys_list
 
 
@@ -168,8 +184,8 @@ class SurveyService:
                         )
         
         session.add(user)
-        session.commit()
         user_id = user.user_id
+        session.commit()
         session.close()
         return user_id
 
@@ -182,6 +198,49 @@ class SurveyService:
             session.commit()
         session.close()
 
+    def get_user(self, user_id):
+        session = self.Session()
+        user = session.query(User).get(user_id)
+        if not user:
+            session.close()
+            return None
+
+        user_data = {
+            'user_id': user.user_id,
+            'username': user.username,
+            'email': user.email,
+            'password': user.password,
+            'created_at': user.created_at.strftime('%H:%M %d/%m/%Y'),
+        }
+
+        session.close()
+        return user_data
+
+
+    def upload_responses(self, responses_data):
+        session = self.Session()
+        responses = responses_data['responses']
+        survey_id = responses_data['survey_id']
+        user_id = responses_data['user_id']
+        responded_at = datetime.now()
+
+
+        for response in responses:
+            question_id = response['question_id']
+            response_text = response['response_text']
+            
+            survey_response = SurveyResponse(
+                            survey_id=survey_id,
+                            question_id=question_id,
+                            user_id=user_id,
+                            response_text=response_text,
+                            responded_at=responded_at
+                            )
+
+            session.add(survey_response);
+            
+        session.commit()
+        session.close()
 
 
 
