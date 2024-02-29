@@ -14,27 +14,11 @@
 На главной странице будет предложена регистрация/вход + список существующих опросов.
 Если пользователь авторизирован, он может создать или удалить свой опрос, а так же к любому опросу можно посмотреть статистику.
 
-Методы класса SurveyService:
+Подробное описание методов класса SurveyService:
+
+-----------------
 - `create_survey`
-- `delete_survey`
-- `get_survey`
-- `get_survey_statistics`
-
-- `get_surveys_list` (с количеством вопросов в каждом опросе)
-
-- `create_user`
-- `delete_user`
-- `validate_user`
-
-- `upload_survey_response`
-
-- `get_surveys_by_creator`
-- `get_creator_by_survey`
-
-
-`create_survey`(id опроса(авто), id создателя, имя опроса, время создания(авто), [набор вопросов, набор ответов к каждому вопросу])
-
-
+Принимает:
 ```
 # структура словаря, содержащего все необходимые данные, чтобы создать новый опрос
 survey_data = {
@@ -50,9 +34,41 @@ survey_data = {
     ]
 }
 ```
+Возвращает: `survey_id`
 
+-----------------
+- `delete_survey`
+Принимает: `survey_id`
+Возвращает: `None` 
 
+-----------------
+- `get_survey`
+Принимает: `survey_id`
+Возвращает:
 ```
+# структура словаря, содержащего данные о существующем опросе
+survey_data = {
+    'survey_id': survey_id,
+    'creator_id': user_id,
+    'survey_name': survey_name,
+    'created_at': created_at,
+    'questions': [
+        {
+            'question_text': question_text,
+            'question_type': question_type,
+            'choices': [choice1, choice2, ...]
+        },
+        ...
+    ]
+}
+```
+
+-----------------
+- `get_survey_statistics`
+Принимает: `survey_id`
+Возвращает:
+```
+# структура словаря, содержащего статистику опроса
 survey_statistics = {
     'survey_id': survey_id,
     'creator_id': user_id,
@@ -74,25 +90,70 @@ survey_statistics = {
     ]
 ```
 
+-----------------
+- `get_surveys_list` (с количеством вопросов в каждом опросе)
+Принимает: `None`
+Возвращает:
+```
+# структура списка, содержащего общие данные о каждом опросе
+surveys_list = [
+    {
+        'survey_id': survey_id,
+        'creator_id': user_id,
+        'survey_name': survey_name,
+        'created_at': created_at,
+        'question_count': question_count
+    },
+    ...
+]
+```
 
-`create_question`(id вопроса(авто), id опроса, текст вопроса, набор ответов)
+-----------------
+- `create_user`
+Принимает:
+```
+# структура словаря, содержащего все необходимые данные, чтобы создать нового пользователя
+user_data = {
+    'username': username,
+    'email': email,
+    'password': password,
+}
+```
+Возвращает: `user_id`
 
-`create_choice`(id варианта(авто), id вопроса, текст варианта)
+-----------------
+- `delete_user`
+Принимает: `user_id`
+Возвращает: `None` 
 
-`delete_survey`(id опроса)
+-----------------
+- `get_user`
+Принимает: `user_id`
+Возвращает:
+```
+# структура словаря, содержащего все данные о пользователе
+user_data = {
+    'user_id': user_id,
+    'username': username,
+    'email': email,
+    'password': password,
+    'created_at': created_at,
+}
+```
 
+-----------------
+- `validate_user`
 
+-----------------
+- `upload_survey_response`
 
+-----------------
+- `get_surveys_by_creator`
 
+-----------------
+- `get_creator_by_survey`
 
-
-
-
-
-
-
-
-
+-----------------
 
 
 

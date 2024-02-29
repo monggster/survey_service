@@ -14,7 +14,11 @@ class SurveyService:
         session = self.Session()
         creator_id = survey_data['creator_id']
         survey_name = survey_data['survey_name']
-        survey = Survey(user_id=creator_id, survey_name=survey_name, created_at=datetime.now())
+        survey = Survey(
+                        user_id=creator_id,
+                        survey_name=survey_name,
+                        created_at=datetime.now()
+                        )
         
         # Итерируемся по вопросам словаря и добавляем их в таблицу
         questions_data = survey_data.get('questions', [])
@@ -23,13 +27,21 @@ class SurveyService:
             question_type = question_data.get('question_type')
             choices_data = question_data.get('choices', [])
             
-            question = Question(question_text=question_text, question_type=question_type, survey=survey)
+            question = Question(
+                            question_text=question_text,
+                            question_type=question_type,
+                            survey=survey
+                            )
+
             survey.questions.append(question)
             
             # Итерируемся по вариантам ответов для вопроса и добавляем их в
             # таблицу
             for choice_text in choices_data:
-                choice = Choice(choice_text=choice_text, question=question)
+                choice = Choice(
+                                choice_text=choice_text,
+                                question=question
+                                )
                 question.choices.append(choice)
         
         session.add(survey)
@@ -71,7 +83,8 @@ class SurveyService:
                 'choices': []
             }
 
-            # Итерируемся по вариантам ответов вопроса и добавляем их в словарь
+            # Итерируемся по вариантам ответов вопроса
+            # и добавляем их в словарь
             for choice in question.choices:
                 question_data['choices'].append(choice.choice_text)
 
@@ -96,7 +109,8 @@ class SurveyService:
             'questions': []
         }
 
-        # Итерируемся по вопросам опроса и добавляем статистику для каждого вопроса
+        # Итерируемся по вопросам опроса и добавляем
+        # статистику для каждого вопроса
         for question in survey.questions:
             question_statistics = {
                 'question_text': question.question_text,
@@ -118,4 +132,59 @@ class SurveyService:
             survey_statistics['questions'].append(question_statistics)
 
         return survey_statistics
+
+
+    def get_surveys_list(self):
+        session = self.Session()
+        surveys = session.query(Survey).all()
+        session.close()
+
+        surveys_list = []
+
+        for survey in surveys:
+            survey_data = {
+                'survey_id': survey.survey_id,
+                'creator_id': survey.user_id,
+                'survey_name': survey.survey_name,
+                'created_at': survey.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            }
+            # Получаем количество вопросов в опросе
+            survey_data['question_count'] = len(survey.questions)
+            surveys_list.append(survey_data)
+
+        return surveys_list
+
+
+    def create_user(self, user_data):
+        session = self.Session()
+        username = user_data['username']
+        email = user_data['email']
+        password = user_data['password']
+        user = User(
+                        username=username,
+                        email=email,
+                        password=password,
+                        created_at=datetime.now()
+                        )
+        
+        session.add(user)
+        session.commit()
+        user_id = user.user_id
+        session.close()
+        return user_id
+
+
+    def delete_user(self, user_id):
+        session = self.Session()
+        user = session.query(User).get(user_id)
+        if user:
+            session.delete(user)
+            session.commit()
+        session.close()
+
+
+
+
+
+
 
