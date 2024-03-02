@@ -8,9 +8,9 @@ class User(Base):
     __tablename__ = 'users'
 
     user_id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(String)
-    email = Column(String)
-    password = Column(String)
+    username = Column(String)  # Уникальное имя пользователя
+    email = Column(String, unique=True)     # Уникальный адрес электронной почты
+    hashed_password = Column(String)         # Хэшированный пароль
     created_at = Column(DateTime)
 
     responses = relationship('SurveyResponse',

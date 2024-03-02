@@ -3,27 +3,50 @@ from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from tables import Base, User, Survey, Question, Choice, SurveyResponse
 from collections import defaultdict
-from contextlib import contextmanager
+from passlib.context import CryptContext
 
 class SurveyService:
     def __init__(self, db_uri):
-        engine = create_engine(db_uri)
-        Base.metadata.create_all(engine)
-        self.Session = sessionmaker(bind=engine)
-    
-    @contextmanager
-    def session_scope(self):
+        self.engine = create_engine(db_uri)
+        Base.metadata.create_all(self.engine)
+        self.Session = sessionmaker(bind=self.engine)
+        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+    def authenticate_user(self, username: str, password: str):
         session = self.Session()
-        try:
-            yield session
-            session.commit()
-        except:
-            session.rollback()
-            raise
-        finally:
-            session.close()
+        user = session.query(User).filter(User.username == username).first()
+        session.close()
+        if not user:
+            return False
+        if not self.__verify_password(password, user.password):
+            return False
+        return user
+
+    def register_user(self, user_data):
+        session = self.Session()
+        username = user_data['username']
+        email = user_data['email']
+        hashed_password = self.__get_password_hash(user_data['password'])
+        user = User(
+                    username=username,
+                    email=email,
+                    password=hashed_password,
+                    created_at=datetime.now()
+                    )
+        session.add(user)
+        user_id = user.user_id
+        session.commit()
+        session.close()
+        return user_id
 
 
+    def __verify_password(self, plain_password, hashed_password):
+        return self.pwd_context.verify(plain_password, hashed_password)
+
+    def __get_password_hash(self, password):
+        return self.pwd_context.hash(password)
+
+    
     def create_survey(self, survey_data):
         session = self.Session()
         creator_id = survey_data['creator_id']
@@ -169,25 +192,6 @@ class SurveyService:
 
         session.close()
         return surveys_list
-
-
-    def create_user(self, user_data):
-        session = self.Session()
-        username = user_data['username']
-        email = user_data['email']
-        password = user_data['password']
-        user = User(
-                        username=username,
-                        email=email,
-                        password=password,
-                        created_at=datetime.now()
-                        )
-        
-        session.add(user)
-        user_id = user.user_id
-        session.commit()
-        session.close()
-        return user_id
 
 
     def delete_user(self, user_id):

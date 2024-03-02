@@ -22,6 +22,7 @@
 `ALTER DATABASE "survey_service" OWNER TO user;`
 
 
+Python зависимости
 
 
 
