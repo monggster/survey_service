@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create User</title>
+    <link rel="stylesheet" href="styles.css">
+<script>
+    function createUser() {
+        var usernameInput = document.getElementById("username");
+        var emailInput = document.getElementById("email");
+        var passwordInput = document.getElementById("password");
+
+        var username = usernameInput.value.trim();
+        var email = emailInput.value.trim();
+        var password = passwordInput.value.trim();
+
+        // Проверяем обязательные поля
+        if (username === '' || email === '' || password === '') {
+            alert('Please fill in all the fields.');
+            return;
+        }
+
+        var user_data = {
+            'username': username,
+            'email': email,
+            'password': password
+        };
+
+        // Очищаем поля ввода
+        usernameInput.value = '';
+        emailInput.value = '';
+        passwordInput.value = '';
+
+        // Отправить POST-запрос со словарем user_data в формате JSON
+        fetch('/create_user', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(user_data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Error: " + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+            // Обработать ответ JSON
+            // ...
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Обработать ошибку
+            // ...
+        });
+    }
+</script>
+</head>
+<body>
+    <h1>Create User</h1>
+    <form onsubmit="event.preventDefault(); createUser();">
+
+      <input name="disable-pwd-mgr-1" type="password" id="disable-pwd-mgr-1" style="display: none;" value="disable-pwd-mgr-1" />
+      <input name="disable-pwd-mgr-2" type="password" id="disable-pwd-mgr-2" style="display: none;" value="disable-pwd-mgr-2" />
+      <input name="disable-pwd-mgr-3" type="password" id="disable-pwd-mgr-3" style="display: none;" value="disable-pwd-mgr-3" />
+
+        <label>Username:</label>
+        <input type="text" id="username" required><br>
+
+        <label>Email:</label>
+        <input type="email" id="email" required><br>
+
+        <label>Password:</label>
+        <input type="password" id="password" required><br>
+
+        <input type="submit" value="Create User">
+    </form>
+</body>
+</html>

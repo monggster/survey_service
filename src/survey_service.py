@@ -24,8 +24,15 @@ class SurveyService:
 
     def register_user(self, user_data):
         session = self.Session()
-        username = user_data['username']
         email = user_data['email']
+
+        # Проверка, существует ли пользователь с таким же email
+        existing_user = session.query(User).filter(User.email == email).first()
+        if existing_user:
+            session.close()
+            return None
+
+        username = user_data['username']
         hashed_password = self.__get_password_hash(user_data['password'])
         user = User(
                     username=username,

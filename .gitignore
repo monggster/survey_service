@@ -1,5 +1,5 @@
 # ingoring venv directory
 venv/
 
-# ignoring notes
-notes.txt
+# python chache files
+src/__pychache__/
